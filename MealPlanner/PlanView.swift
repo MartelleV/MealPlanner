@@ -1,4 +1,13 @@
+//
+//  PlanView.swift
+//  MealPlanner
+//
+//  Created by Zayne Verlyn on 24/10/25.
+//
+
+
 import SwiftUI
+import Foundation
 
 struct PlanView: View {
     @EnvironmentObject private var store: AppStore
@@ -33,7 +42,13 @@ private struct WeekStrip: View {
                             .font(.headline)
                     }
                     .frame(width: 48, height: 56)
-                    .background(isSel ? Color.accentColor.opacity(0.2) : .thinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                    .background(
+                        (isSel
+                         ? AnyShapeStyle(Color.accentColor.opacity(0.2))
+                         : AnyShapeStyle(.thinMaterial)),
+                        in: RoundedRectangle(cornerRadius: 12)
+                    )
+
                 }
             }
         }
@@ -82,5 +97,12 @@ private struct PlanEditor: View {
                 }
             }
         }
+    }
+}
+
+extension Date {
+    var startOfDay: Date { Calendar.current.startOfDay(for: self) }
+    func addingDays(_ d: Int) -> Date {
+        Calendar.current.date(byAdding: .day, value: d, to: self) ?? self
     }
 }

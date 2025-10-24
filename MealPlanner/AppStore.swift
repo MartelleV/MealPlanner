@@ -1,3 +1,11 @@
+//
+//  AppStore.swift
+//  MealPlanner
+//
+//  Created by Zayne Verlyn on 24/10/25.
+//
+
+
 import Foundation
 import Combine
 import os
@@ -64,7 +72,7 @@ final class AppStore: ObservableObject {
     }
 
     func imageURL(for filename: String) -> URL {
-        storage.imageURL(for: filename)
+        Storage.imageURL(for: filename) // calls the nonisolated static helper
     }
 
     // MARK: - Profile

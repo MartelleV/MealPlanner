@@ -1,3 +1,11 @@
+//
+//  Storage.swift
+//  MealPlanner
+//
+//  Created by Zayne Verlyn on 24/10/25.
+//
+
+
 import Foundation
 import os
 
@@ -35,7 +43,14 @@ actor Storage {
     // MARK: - Public IO
 
     func loadMeals() async -> [Meal] {
-        await load([Meal].self, from: mealsURL) ?? seedMeals()
+        if let meals: [Meal] = await load([Meal].self, from: mealsURL) {
+            return meals
+        } else {
+            // First run: seed and persist to avoid repeated logs on next launch.
+            let seeded = seedMeals()
+            await save(seeded, to: mealsURL)
+            return seeded
+        }
     }
 
     func saveMeals(_ meals: [Meal]) async {
@@ -43,7 +58,13 @@ actor Storage {
     }
 
     func loadProfile() async -> UserProfile {
-        await load(UserProfile.self, from: profileURL) ?? UserProfile()
+        if let profile: UserProfile = await load(UserProfile.self, from: profileURL) {
+            return profile
+        } else {
+            let profile = UserProfile()
+            await save(profile, to: profileURL)
+            return profile
+        }
     }
 
     func saveProfile(_ profile: UserProfile) async {
@@ -51,7 +72,13 @@ actor Storage {
     }
 
     func loadPlans() async -> [DayPlan] {
-        await load([DayPlan].self, from: plansURL) ?? []
+        if let plans: [DayPlan] = await load([DayPlan].self, from: plansURL) {
+            return plans
+        } else {
+            let plans: [DayPlan] = []
+            await save(plans, to: plansURL)
+            return plans
+        }
     }
 
     func savePlans(_ plans: [DayPlan]) async {
@@ -77,12 +104,15 @@ actor Storage {
     // MARK: - Helpers
 
     private func load<T: Decodable>(_ type: T.Type, from url: URL) async -> T? {
+        // Treat "file not found" as a benign first-run case.
+        guard FileManager.default.fileExists(atPath: url.path) else { return nil }
         do {
             let data = try Data(contentsOf: url)
             let decoder = JSONDecoder()
             decoder.dateDecodingStrategy = .iso8601
             return try decoder.decode(type, from: data)
         } catch {
+            // Only log real decoding/IO problems now.
             logger.warning("Load \(url.lastPathComponent, privacy: .public) failed: \(error.localizedDescription, privacy: .public)")
             return nil
         }
@@ -118,11 +148,20 @@ actor Storage {
     }
 }
 
-// MARK: - URL conveniences (iOS 16+ added handy static URLs)
+// MARK: - URL conveniences (no recursion)
 extension URL {
+    /// App's Documents directory (resolves via FileManager to avoid shadowing/recursion).
     static var documentsDirectory: URL {
-        // Prefer URL.documentsDirectory when available; otherwise fall back.
-        if #available(iOS 16.0, *) { return .documentsDirectory }
-        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        // This works on all supported iOS versions and avoids calling itself.
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    }
+}
+
+extension Storage {
+    /// Build the image URL without touching actor-isolated state.
+    nonisolated static func imageURL(for filename: String) -> URL {
+        URL.documentsDirectory
+            .appendingPathComponent("images", conformingTo: .directory)
+            .appendingPathComponent(filename)
     }
 }

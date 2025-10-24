@@ -1,3 +1,11 @@
+//
+//  ProfileView.swift
+//  MealPlanner
+//
+//  Created by Zayne Verlyn on 24/10/25.
+//
+
+
 import SwiftUI
 
 struct ProfileView: View {
@@ -31,8 +39,18 @@ struct ProfileView: View {
                 }
 
                 Section("Diet preferences") {
-                    ToggleGroup(title: "Preferred flavors", all: Flavor.allCases, selection: $store.profile.preferredFlavors)
-                    ToggleGroup(title: "Allergies", all: Allergy.allCases, selection: $store.profile.allergies)
+                    ChoiceChips(
+                        title: "Preferred flavors",
+                        options: Array(Flavor.allCases),
+                        selection: $store.profile.preferredFlavors,
+                        labelText: { $0.rawValue.capitalized }
+                    )
+                    ChoiceChips(
+                        title: "Allergies",
+                        options: Array(Allergy.allCases),
+                        selection: $store.profile.allergies,
+                        labelText: { $0.rawValue.capitalized }
+                    )
                 }
 
                 Section("Daily needs") {
@@ -55,26 +73,34 @@ struct ProfileView: View {
     }
 }
 
-private struct ToggleGroup<T: CaseIterable & Identifiable & Hashable, LabelView: View>: View where T.AllCases: RandomAccessCollection {
+private struct ChoiceChips<T: Identifiable & Hashable>: View {
     let title: String
-    let all: T.AllCases
+    let options: [T]
     @Binding var selection: Set<T>
+    var labelText: (T) -> String
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
-            WrapLayout {
-                ForEach(all, id: \.self) { t in
-                    let on = selection.contains(t)
+            FlowRows(spacing: 8) {
+                ForEach(options, id: \.id) { option in
+                    let isOn = selection.contains(option)
                     Button {
-                        if on { selection.remove(t) } else { selection.insert(t) }
+                        if isOn { selection.remove(option) } else { selection.insert(option) }
                     } label: {
-                        Text(t.id.description.capitalized)
-                            .padding(.horizontal, 12).padding(.vertical, 8)
-                            .background(on ? Color.accentColor.opacity(0.2) : .thinMaterial, in: Capsule())
+                        Text(labelText(option))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background {
+                                // type-erased ShapeStyle so Color/Material can be mixed in a ternary
+                                Capsule().fill(isOn
+                                               ? AnyShapeStyle(Color.accentColor.opacity(0.2))
+                                               : AnyShapeStyle(.thinMaterial))
+                            }
                     }
                 }
             }
         }
     }
 }
+

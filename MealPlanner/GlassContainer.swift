@@ -1,3 +1,11 @@
+//
+//  GlassContainer.swift
+//  MealPlanner
+//
+//  Created by Zayne Verlyn on 24/10/25.
+//
+
+
 import SwiftUI
 
 struct GlassContainer: ViewModifier {

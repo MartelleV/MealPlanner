@@ -1,3 +1,11 @@
+//
+//  MealsView.swift
+//  MealPlanner
+//
+//  Created by Zayne Verlyn on 24/10/25.
+//
+
+
 import SwiftUI
 import PhotosUI
 
@@ -73,7 +81,8 @@ private struct MealRow: View {
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            Image(systemName: "chevron.right").foregroundStyle(.tertiaryLabel)
+            Image(systemName: "chevron.right")
+                .foregroundStyle(.tertiary)  // de-emphasized, hierarchical ShapeStyle
         }
         .contentShape(Rectangle())
     }

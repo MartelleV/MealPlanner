@@ -33,17 +33,29 @@
 		75EC6D1F2E731DF700D9C941 /* Exceptions for "MealPlanner" folder in "MealPlanner" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"Date+Utils.swift",
 				Info.plist,
 			);
 			target = 75EC6CF82E731DF500D9C941 /* MealPlanner */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		75EE21142EAB8C5F0017779E /* Exceptions for "MealPlanner" folder in "Copy Bundle Resources" phase from "MealPlanner" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 75EC6CF72E731DF500D9C941 /* Resources */;
+			membershipExceptions = (
+				"Date+Utils.swift",
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		75EC6CFB2E731DF500D9C941 /* MealPlanner */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				75EC6D1F2E731DF700D9C941 /* Exceptions for "MealPlanner" folder in "MealPlanner" target */,
+				75EE21142EAB8C5F0017779E /* Exceptions for "MealPlanner" folder in "Copy Bundle Resources" phase from "MealPlanner" target */,
 			);
 			path = MealPlanner;
 			sourceTree = "<group>";

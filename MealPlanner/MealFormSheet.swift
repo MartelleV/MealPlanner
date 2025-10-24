@@ -1,3 +1,11 @@
+//
+//  MealFormSheet.swift
+//  MealPlanner
+//
+//  Created by Zayne Verlyn on 24/10/25.
+//
+
+
 import SwiftUI
 import PhotosUI
 import os
@@ -53,8 +61,8 @@ struct MealFormView: View {
                 }
 
                 Section("Taste & allergies") {
-                    FlowWrap(Flavor.allCases, selection: $flavors) { Text($0.rawValue.capitalized) }
-                    FlowWrap(Allergy.allCases, selection: $allergies) { Text($0.rawValue.capitalized) }
+                    FlowWrap(Flavor.self, selection: $flavors) { Text($0.rawValue.capitalized) }
+                    FlowWrap(Allergy.self, selection: $allergies) { Text($0.rawValue.capitalized) }
                 }
 
                 Section("Tips") {
@@ -136,81 +144,87 @@ struct MealFormView: View {
     }
 }
 
-// MARK: - FlowWrap (chip selector)
+// MARK: - FlowWrap (chip selector) + FlowRows layout
 
-struct FlowWrap<T: Identifiable & Hashable, Label: View>: View where T: CaseIterable, T.AllCases: RandomAccessCollection {
-    let all: T.AllCases = T.allCases
+/// A simple chips selector for any CaseIterable + Identifiable + Hashable enum.
+struct FlowWrap<T: CaseIterable & Identifiable & Hashable, Label: View>: View where T.AllCases: RandomAccessCollection {
+    private let options: [T]
     @Binding var selection: Set<T>
     let label: (T) -> Label
 
     init(_ type: T.Type = T.self, selection: Binding<Set<T>>, @ViewBuilder label: @escaping (T) -> Label) {
+        self.options = Array(T.allCases)
         self._selection = selection
         self.label = label
     }
 
     var body: some View {
-        WrapLayout(alignment: .leading, spacing: 8) {
-            ForEach(all, id: \.self) { item in
+        FlowRows(spacing: 8) {
+            ForEach(options, id: \.id) { item in      // 👈 force the collection initializer
                 let isOn = selection.contains(item)
                 Button {
                     if isOn { selection.remove(item) } else { selection.insert(item) }
                 } label: {
                     label(item)
-                        .padding(.horizontal, 12).padding(.vertical, 8)
-                        .background(isOn ? Color.accentColor.opacity(0.2) : .thinMaterial, in: Capsule())
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background {                       // 👈 closure bg = no ShapeStyle mismatch
+                            Capsule().fill(isOn ? AnyShapeStyle(Color.accentColor.opacity(0.2)) : AnyShapeStyle(.thinMaterial))
+                        }
                 }
             }
         }
     }
 }
 
-struct WrapLayout<Content: View>: View {
-    var alignment: HorizontalAlignment = .leading
+/// Public `Layout`-based flow that wraps chips onto new lines (iOS 16+).
+struct FlowRows: Layout {
     var spacing: CGFloat = 8
-    @ViewBuilder var content: () -> Content
 
-    var body: some View {
-        FlowLayout(spacing: spacing, content: content)
-    }
-}
+    init(spacing: CGFloat = 8) { self.spacing = spacing }
 
-struct FlowLayout<Content: View>: View {
-    var spacing: CGFloat = 8
-    let content: () -> Content
-    init(spacing: CGFloat = 8, @ViewBuilder content: @escaping () -> Content) {
-        self.spacing = spacing
-        self.content = content
-    }
-    var body: some View {
-        _VariadicView.Tree(FlowLayoutRoot(spacing: spacing), content: content)
-    }
+    func sizeThatFits(proposal: ProposedViewSize,
+                      subviews: Subviews,
+                      cache: inout ()) -> CGSize {
+        let maxWidth = proposal.width ?? .infinity
+        var x: CGFloat = 0
+        var y: CGFloat = 0
+        var rowHeight: CGFloat = 0
 
-    struct FlowLayoutRoot: _VariadicView_MultiViewRoot {
-        var spacing: CGFloat
-        func body(children: _VariadicView.Children) -> some View {
-            GeometryReader { proxy in
-                var x: CGFloat = 0
-                var y: CGFloat = 0
-                ZStack(alignment: .topLeading) {
-                    ForEach(children) { child in
-                        child
-                            .alignmentGuide(.leading) { _ in
-                                if x + child.sizeThatFits(.unspecified).width > proxy.size.width {
-                                    x = 0; y -= child.sizeThatFits(.unspecified).height + spacing
-                                }
-                                let result = x
-                                x += child.sizeThatFits(.unspecified).width + spacing
-                                return result
-                            }
-                            .alignmentGuide(.top) { _ in
-                                let result = y
-                                return result
-                            }
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .topLeading)
-                .frame(height: -y + 44)
+        for sub in subviews {
+            let size = sub.sizeThatFits(.unspecified)
+            if x + size.width > maxWidth {     // wrap
+                x = 0
+                y += rowHeight + spacing
+                rowHeight = 0
             }
+            rowHeight = max(rowHeight, size.height)
+            x += size.width + spacing
+        }
+        y += rowHeight
+        return CGSize(width: proposal.width ?? x, height: y)
+    }
+
+    func placeSubviews(in bounds: CGRect,
+                       proposal: ProposedViewSize,
+                       subviews: Subviews,
+                       cache: inout ()) {
+        let maxWidth = bounds.width
+        var x: CGFloat = 0
+        var y: CGFloat = 0
+        var rowHeight: CGFloat = 0
+
+        for sub in subviews {
+            let size = sub.sizeThatFits(.unspecified)
+            if x + size.width > maxWidth {     // wrap
+                x = 0
+                y += rowHeight + spacing
+                rowHeight = 0
+            }
+            sub.place(at: CGPoint(x: bounds.minX + x, y: bounds.minY + y),
+                      proposal: ProposedViewSize(size))
+            rowHeight = max(rowHeight, size.height)
+            x += size.width + spacing
         }
     }
 }
