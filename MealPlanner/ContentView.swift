@@ -10,7 +10,7 @@ import CoreData
 
 struct ContentView: View {
     var body: some View {
-        RootView() // Kept for compatibility if previews rely on ContentView
+        RootView() // This is kept for compatibility if previews rely on ContentView
     }
 }
 
