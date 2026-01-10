@@ -30,32 +30,20 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		75EC6D1F2E731DF700D9C941 /* Exceptions for "MealPlanner" folder in "MealPlanner" target */ = {
+		757929E52F12459D0065B5DB /* Exceptions for "MealPlanner" folder in "MealPlanner" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				"Date+Utils.swift",
-				Info.plist,
+				App/Info.plist,
 			);
 			target = 75EC6CF82E731DF500D9C941 /* MealPlanner */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
-/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		75EE21142EAB8C5F0017779E /* Exceptions for "MealPlanner" folder in "Copy Bundle Resources" phase from "MealPlanner" target */ = {
-			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
-			buildPhase = 75EC6CF72E731DF500D9C941 /* Resources */;
-			membershipExceptions = (
-				"Date+Utils.swift",
-			);
-		};
-/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		75EC6CFB2E731DF500D9C941 /* MealPlanner */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				75EC6D1F2E731DF700D9C941 /* Exceptions for "MealPlanner" folder in "MealPlanner" target */,
-				75EE21142EAB8C5F0017779E /* Exceptions for "MealPlanner" folder in "Copy Bundle Resources" phase from "MealPlanner" target */,
+				757929E52F12459D0065B5DB /* Exceptions for "MealPlanner" folder in "MealPlanner" target */,
 			);
 			path = MealPlanner;
 			sourceTree = "<group>";
@@ -299,13 +287,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = MealPlanner/MealPlanner.entitlements;
+				CODE_SIGN_ENTITLEMENTS = MealPlanner/App/MealPlanner.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = U893U9F7P7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = MealPlanner/Info.plist;
+				INFOPLIST_FILE = MealPlanner/App/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -329,13 +317,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = MealPlanner/MealPlanner.entitlements;
+				CODE_SIGN_ENTITLEMENTS = MealPlanner/App/MealPlanner.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = U893U9F7P7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = MealPlanner/Info.plist;
+				INFOPLIST_FILE = MealPlanner/App/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

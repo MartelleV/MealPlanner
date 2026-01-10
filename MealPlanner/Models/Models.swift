@@ -1,18 +1,36 @@
 //
-//  MealCourse.swift
+//  Models.swift
 //  MealPlanner
 //
 //  Created by Zayne Verlyn on 24/10/25.
 //
 
-
 import Foundation
+import SwiftUI
 
 // MARK: - Domain Models
 
 enum MealCourse: String, Codable, CaseIterable, Identifiable {
     case breakfast, lunch, dinner, snack
     var id: String { rawValue }
+
+    var accentColor: Color {
+        switch self {
+        case .breakfast: return Color(red: 1.0, green: 0.75, blue: 0.3)    // Warm orange
+        case .lunch:     return Color(red: 0.4, green: 0.78, blue: 0.45)   // Fresh green
+        case .dinner:    return Color(red: 0.75, green: 0.4, blue: 0.95)   // Deep purple
+        case .snack:     return Color(red: 0.2, green: 0.7, blue: 0.9)     // Sky blue
+        }
+    }
+
+    var emoji: String {
+        switch self {
+        case .breakfast: return "🌅"
+        case .lunch:     return "☀️"
+        case .dinner:    return "🌙"
+        case .snack:     return "✨"
+        }
+    }
 }
 
 enum Flavor: String, Codable, CaseIterable, Identifiable {
