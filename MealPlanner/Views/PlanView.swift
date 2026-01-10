@@ -2,49 +2,43 @@
 //  PlanView.swift
 //  MealPlanner
 //
-//  Created by Zayne Verlyn on 24/10/25.
-//
 
 import SwiftUI
-import Foundation
 
 struct PlanView: View {
     @EnvironmentObject private var store: AppStore
     @State private var selectedDay = Date().startOfDay
 
     var body: some View {
-        ZStack {
-            Color.clear
-            
-            ScrollView {
-                VStack(spacing: Spacing.xl) {
-                    // Header
-                    VStack(alignment: .leading, spacing: Spacing.md) {
-                        Text("Meal Plan")
-                            .font(AppFont.header(38, weight: .bold))
-                            .foregroundStyle(.textPrimary)
-                        
-                        Text("Plan your week ahead")
-                            .font(AppFont.body(15, weight: .regular))
-                            .foregroundStyle(.textSecondary)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, Spacing.lg)
-                    .padding(.top, Spacing.xl)
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: Spacing.xl) {
+                // Header
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    Text("Plan")
+                        .font(AppFont.display(42))
+                        .foregroundStyle(.textPrimary)
                     
-                    // Week Strip
-                    WeekStrip(selected: $selectedDay)
-                        .padding(.horizontal, Spacing.lg)
-                    
-                    // Plan Editor
-                    PlanEditor(day: selectedDay)
-                        .padding(.horizontal, Spacing.lg)
+                    Text("Organize your week")
+                        .font(AppFont.body(15))
+                        .foregroundStyle(.textTertiary)
                 }
-                .padding(.bottom, 100)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, Spacing.lg)
+                .padding(.top, Spacing.xl)
+                
+                // Week Strip
+                WeekStrip(selected: $selectedDay)
+                
+                // Plan Editor
+                PlanEditor(day: selectedDay)
+                    .padding(.horizontal, Spacing.lg)
             }
+            .padding(.bottom, 120)
         }
     }
 }
+
+// MARK: - Week Strip
 
 private struct WeekStrip: View {
     @Binding var selected: Date
@@ -59,102 +53,106 @@ private struct WeekStrip: View {
                     let isToday = Calendar.current.isDateInToday(day)
                     
                     Button {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                            selected = day
-                        }
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selected = day }
                     } label: {
                         VStack(spacing: Spacing.xs) {
-                            Text(day.formatted(.dateTime.weekday(.abbreviated)))
-                                .font(AppFont.caption(11, weight: .semibold))
-                                .foregroundStyle(isSel ? .white : .textSecondary)
+                            Text(day.formatted(.dateTime.weekday(.abbreviated)).uppercased())
+                                .font(AppFont.caption(11, weight: .medium))
+                                .foregroundStyle(isSel ? .white.opacity(0.8) : .textTertiary)
+                                .tracking(0.5)
                             
                             Text(day.formatted(.dateTime.day()))
-                                .font(AppFont.mono(20, weight: .bold))
+                                .font(AppFont.mono(20, weight: .semibold))
                                 .foregroundStyle(isSel ? .white : .textPrimary)
                             
-                            if isToday {
-                                Circle()
-                                    .fill(isSel ? .white : Color.brandPrimary)
-                                    .frame(width: 4, height: 4)
-                            }
+                            Circle()
+                                .fill(isToday ? (isSel ? .white : .brandPrimary) : .clear)
+                                .frame(width: 5, height: 5)
                         }
-                        .frame(width: 60, height: 72)
+                        .frame(width: 54, height: 76)
                         .background {
                             RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous)
-                                .fill(isSel ? Color.brandPrimary : Color.white)
-                                .shadow(color: .black.opacity(isSel ? 0.15 : 0.04), radius: isSel ? 12 : 4, x: 0, y: isSel ? 6 : 2)
+                                .fill(isSel ? Color.brandPrimary : .white)
+                                .overlay {
+                                    if !isSel {
+                                        RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous)
+                                            .stroke(Color.border, lineWidth: 0.5)
+                                    }
+                                }
                         }
                     }
                     .buttonStyle(BouncyButtonStyle())
                 }
             }
+            .padding(.horizontal, Spacing.lg)
         }
     }
 }
 
+// MARK: - Plan Editor
+
 private struct PlanEditor: View {
     @EnvironmentObject private var store: AppStore
     let day: Date
-
     @State private var plan: DayPlan = DayPlan(date: Date().startOfDay)
 
     var body: some View {
-        VStack(spacing: Spacing.md) {
-            // Date header
+        VStack(spacing: 0) {
+            // Header
             HStack {
-                Text(day.formatted(date: .complete, time: .omitted))
-                    .font(AppFont.body(16, weight: .semibold))
-                    .foregroundStyle(.textPrimary)
+                Text(day.formatted(date: .abbreviated, time: .omitted))
+                    .font(AppFont.body(14, weight: .medium))
+                    .foregroundStyle(.textSecondary)
                 
                 Spacer()
                 
                 if totalCalories > 0 {
                     HStack(spacing: 4) {
                         Text("\(totalCalories)")
-                            .font(AppFont.mono(18, weight: .bold))
+                            .font(AppFont.mono(16, weight: .semibold))
+                            .foregroundStyle(.brandPrimary)
                         Text("kcal")
-                            .font(AppFont.caption(12, weight: .medium))
+                            .font(AppFont.caption(12))
+                            .foregroundStyle(.textTertiary)
                     }
-                    .foregroundStyle(.textSecondary)
                 }
             }
-            .padding(.horizontal, Spacing.md)
+            .padding(Spacing.md)
             
-            // Course pickers
-            VStack(spacing: Spacing.sm) {
+            ThinDivider()
+            
+            // Courses
+            VStack(spacing: 0) {
                 CourseRow(course: .breakfast, selection: $plan.breakfast, options: store.suggestedMeals(for: .breakfast))
+                ThinDivider().padding(.leading, Spacing.lg)
                 CourseRow(course: .lunch, selection: $plan.lunch, options: store.suggestedMeals(for: .lunch))
+                ThinDivider().padding(.leading, Spacing.lg)
                 CourseRow(course: .dinner, selection: $plan.dinner, options: store.suggestedMeals(for: .dinner))
+                ThinDivider().padding(.leading, Spacing.lg)
                 CourseRow(course: .snack, selection: $plan.snack, options: store.suggestedMeals(for: .snack))
             }
             
-            // Save button
+            ThinDivider()
+            
+            // Save
             Button {
                 Task { await store.savePlan(plan) }
             } label: {
-                HStack {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 18, weight: .semibold))
-                    Text("Save Plan")
-                        .font(AppFont.body(16, weight: .semibold))
-                }
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, Spacing.md)
-                .background {
-                    RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous)
-                        .fill(Color.brandPrimary)
-                        .shadow(color: .brandPrimary.opacity(0.3), radius: 12, x: 0, y: 6)
-                }
+                Text("Save Plan")
+                    .font(AppFont.body(15, weight: .semibold))
+                    .foregroundStyle(.brandPrimary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, Spacing.md)
             }
             .buttonStyle(BouncyButtonStyle())
-            .padding(.top, Spacing.sm)
         }
-        .padding(Spacing.lg)
         .background {
             RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
                 .fill(.white)
-                .shadow(color: .black.opacity(0.06), radius: 12, x: 0, y: 6)
+                .overlay {
+                    RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                        .stroke(Color.border, lineWidth: 0.5)
+                }
         }
         .onAppear { plan = store.plan(for: day) }
         .onChange(of: day) { _, new in plan = store.plan(for: new) }
@@ -164,118 +162,91 @@ private struct PlanEditor: View {
         let ids = [plan.breakfast, plan.lunch, plan.dinner, plan.snack].compactMap { $0 }
         return store.meals.filter { ids.contains($0.id) }.reduce(0) { $0 + $1.calories }
     }
+}
 
-    private struct CourseRow: View {
-        @EnvironmentObject private var store: AppStore
-        let course: MealCourse
-        @Binding var selection: UUID?
-        var options: [Meal]
-        
-        @State private var isExpanded = false
+// MARK: - Course Row
 
-        var body: some View {
-            VStack(spacing: 0) {
-                // Course header
-                Button {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                        isExpanded.toggle()
-                    }
-                } label: {
-                    HStack {
-                        Text(course.emoji)
-                            .font(.system(size: 24))
+private struct CourseRow: View {
+    @EnvironmentObject private var store: AppStore
+    let course: MealCourse
+    @Binding var selection: UUID?
+    var options: [Meal]
+    @State private var isExpanded = false
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Button {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { isExpanded.toggle() }
+            } label: {
+                HStack(spacing: Spacing.md) {
+                    Text(course.emoji)
+                        .font(.system(size: 24))
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(course.rawValue.capitalized)
+                            .font(AppFont.body(16, weight: .medium))
+                            .foregroundStyle(.textPrimary)
                         
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(course.rawValue.capitalized)
-                                .font(AppFont.body(16, weight: .semibold))
-                                .foregroundStyle(.textPrimary)
-                            
-                            if let mealID = selection, let meal = store.meals.first(where: { $0.id == mealID }) {
-                                Text("\(meal.name) • \(meal.calories) kcal")
-                                    .font(AppFont.caption(13, weight: .medium))
-                                    .foregroundStyle(.textSecondary)
-                            } else {
-                                Text("Not planned")
-                                    .font(AppFont.caption(13, weight: .medium))
-                                    .foregroundStyle(.textTertiary)
-                            }
+                        if let mealID = selection, let meal = store.meals.first(where: { $0.id == mealID }) {
+                            Text(meal.name)
+                                .font(AppFont.body(13))
+                                .foregroundStyle(.textSecondary)
+                        } else {
+                            Text("Not set")
+                                .font(AppFont.body(13))
+                                .foregroundStyle(.textTertiary)
                         }
-                        
-                        Spacer()
-                        
-                        Image(systemName: "chevron.down")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundStyle(.textSecondary)
-                            .rotationEffect(.degrees(isExpanded ? 180 : 0))
                     }
-                    .padding(Spacing.md)
-                    .background {
-                        RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous)
-                            .fill(course.accentColor.opacity(0.1))
-                    }
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(.textTertiary)
+                        .rotationEffect(.degrees(isExpanded ? 90 : 0))
                 }
-                .buttonStyle(BouncyButtonStyle())
-                
-                // Meal options
-                if isExpanded {
-                    VStack(spacing: 0) {
-                        ForEach(options.prefix(5)) { meal in
-                            Button {
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                    selection = meal.id
-                                    isExpanded = false
-                                }
-                            } label: {
-                                HStack {
-                                    Text(meal.name)
-                                        .font(AppFont.body(15, weight: .medium))
-                                        .foregroundStyle(.textPrimary)
-                                    
-                                    Spacer()
-                                    
-                                    Text("\(meal.calories)")
-                                        .font(AppFont.mono(14, weight: .semibold))
-                                        .foregroundStyle(course.accentColor)
-                                    
-                                    Text("kcal")
-                                        .font(AppFont.caption(11, weight: .medium))
-                                        .foregroundStyle(.textSecondary)
-                                }
-                                .padding(.horizontal, Spacing.md)
-                                .padding(.vertical, Spacing.sm)
-                            }
-                            .buttonStyle(BouncyButtonStyle())
-                            
-                            if meal.id != options.prefix(5).last?.id {
-                                Divider()
-                                    .padding(.leading, Spacing.md)
-                            }
-                        }
-                        
+                .padding(.horizontal, Spacing.md)
+                .padding(.vertical, Spacing.md)
+            }
+            .buttonStyle(BouncyButtonStyle())
+            
+            if isExpanded {
+                VStack(spacing: 0) {
+                    ForEach(options.prefix(4)) { meal in
                         Button {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                selection = nil
-                                isExpanded = false
-                            }
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selection = meal.id; isExpanded = false }
                         } label: {
                             HStack {
-                                Text("Clear selection")
-                                    .font(AppFont.body(15, weight: .medium))
-                                    .foregroundStyle(.brandPrimary)
-                                
+                                Text(meal.name)
+                                    .font(AppFont.body(14))
+                                    .foregroundStyle(.textPrimary)
                                 Spacer()
+                                Text("\(meal.calories)")
+                                    .font(AppFont.mono(13))
+                                    .foregroundStyle(.textTertiary)
                             }
-                            .padding(.horizontal, Spacing.md)
+                            .padding(.horizontal, Spacing.lg)
                             .padding(.vertical, Spacing.sm)
+                            .background(selection == meal.id ? Color.surfaceBase : .clear)
                         }
                         .buttonStyle(BouncyButtonStyle())
                     }
-                    .background {
-                        RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous)
-                            .fill(.white)
+                    
+                    if selection != nil {
+                        Button {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selection = nil; isExpanded = false }
+                        } label: {
+                            Text("Clear")
+                                .font(AppFont.body(14, weight: .medium))
+                                .foregroundStyle(.brandSecondary)
+                                .padding(.horizontal, Spacing.lg)
+                                .padding(.vertical, Spacing.sm)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .buttonStyle(BouncyButtonStyle())
                     }
-                    .padding(.top, 4)
                 }
+                .background(Color.surfaceBase.opacity(0.5))
             }
         }
     }

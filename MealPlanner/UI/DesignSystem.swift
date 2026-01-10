@@ -2,138 +2,132 @@
 //  DesignSystem.swift
 //  MealPlanner
 //
-//  Created by Zayne Verlyn on 10/1/26.
+//  Spacious, Snappy Design System
 //
 
 import SwiftUI
 
-// MARK: - Design System
+// MARK: - Typography (Native iOS - Larger)
 
 enum AppFont {
-    /// Header fonts - Bold, impactful serif
-    static func header(_ size: CGFloat, weight: Font.Weight = .bold) -> Font {
+    static func display(_ size: CGFloat) -> Font {
+        .system(size: size, weight: .bold, design: .serif)
+    }
+    
+    static func header(_ size: CGFloat, weight: Font.Weight = .semibold) -> Font {
         .system(size: size, weight: weight, design: .serif)
     }
     
-    /// Body fonts - Clean sans-serif
     static func body(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        .system(size: size, weight: weight, design: .default)
+        .system(size: size, weight: weight)
     }
     
-    /// Mono fonts - For numbers and data
-    static func mono(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
+    static func mono(_ size: CGFloat, weight: Font.Weight = .medium) -> Font {
         .system(size: size, weight: weight, design: .monospaced)
     }
     
-    /// Caption fonts - Small, refined
-    static func caption(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        .system(size: size, weight: weight, design: .rounded)
+    static func caption(_ size: CGFloat, weight: Font.Weight = .medium) -> Font {
+        .system(size: size, weight: weight)
     }
 }
 
-// MARK: - Color Extensions
+// MARK: - Colors
 
 extension ShapeStyle where Self == Color {
-    // Brand Colors - Bold & Vibrant
-    static var brandPrimary: Color { Color(red: 1.0, green: 0.29, blue: 0.35) }      // Coral Red
-    static var brandSecondary: Color { Color(red: 0.2, green: 0.58, blue: 0.92) }    // Vivid Blue
-    static var brandAccent: Color { Color(red: 0.98, green: 0.75, blue: 0.18) }      // Golden Yellow
+    static var brandPrimary: Color { Color(red: 0.15, green: 0.15, blue: 0.2) }
+    static var brandSecondary: Color { Color(red: 0.9, green: 0.35, blue: 0.3) }
+    static var brandAccent: Color { Color(red: 0.2, green: 0.55, blue: 0.5) }
     
-    // Text Colors
-    static var textPrimary: Color { Color(red: 0.11, green: 0.11, blue: 0.12) }      // Near black
-    static var textSecondary: Color { Color(red: 0.47, green: 0.47, blue: 0.49) }    // Medium gray
-    static var textTertiary: Color { Color(red: 0.68, green: 0.68, blue: 0.70) }     // Light gray
+    static var textPrimary: Color { Color(red: 0.08, green: 0.08, blue: 0.1) }
+    static var textSecondary: Color { Color(red: 0.45, green: 0.45, blue: 0.48) }
+    static var textTertiary: Color { Color(red: 0.65, green: 0.65, blue: 0.68) }
     
-    // Surface Colors
-    static var surfaceBase: Color { Color(red: 0.98, green: 0.97, blue: 0.96) }      // Warm white
-    static var surfaceElevated: Color { Color.white }
+    static var surfaceBase: Color { Color(red: 0.96, green: 0.96, blue: 0.965) }
+    static var surfaceElevated: Color { .white }
+    static var border: Color { Color(red: 0.88, green: 0.88, blue: 0.89) }
 }
 
-extension Color {
-    // Hero Gradient Background
-    static let heroGradient = LinearGradient(
-        colors: [
-            Color(red: 0.96, green: 0.94, blue: 0.92),  // Warm beige
-            Color(red: 0.92, green: 0.90, blue: 0.88),  // Slightly darker
-            Color(red: 0.94, green: 0.92, blue: 0.90)   // Soft variation
-        ],
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
-    )
-}
-
-// MARK: - Spacing System
+// MARK: - Spacing (More Generous)
 
 enum Spacing {
-    static let xs: CGFloat = 4
+    static let xs: CGFloat = 6
+    static let sm: CGFloat = 10
+    static let md: CGFloat = 16
+    static let lg: CGFloat = 20
+    static let xl: CGFloat = 28
+    static let xxl: CGFloat = 40
+    static let xxxl: CGFloat = 56
+}
+
+// MARK: - Corner Radius
+
+enum CornerRadius {
+    static let xs: CGFloat = 6
     static let sm: CGFloat = 8
     static let md: CGFloat = 12
     static let lg: CGFloat = 16
     static let xl: CGFloat = 24
-    static let xxl: CGFloat = 32
-    static let xxxl: CGFloat = 48
 }
 
-// MARK: - Corner Radius System
-
-enum CornerRadius {
-    static let sm: CGFloat = 8
-    static let md: CGFloat = 16
-    static let lg: CGFloat = 24
-    static let xl: CGFloat = 32
-}
-
-// MARK: - Bouncy Button Style
+// MARK: - Snappy Button Style
 
 struct BouncyButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
-            .opacity(configuration.isPressed ? 0.8 : 1.0)
-            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: configuration.isPressed)
+            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
+            .animation(.spring(response: 0.25, dampingFraction: 0.6), value: configuration.isPressed)
     }
 }
 
-// MARK: - Grain Texture Overlay
-
-struct GrainTexture: View {
-    var body: some View {
-        Rectangle()
-            .fill(
-                LinearGradient(
-                    colors: [
-                        Color.black.opacity(0.02),
-                        Color.black.opacity(0.01),
-                        Color.black.opacity(0.02)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
-            .ignoresSafeArea()
-            .allowsHitTesting(false)
-            .blendMode(.overlay)
-    }
-}
-
-// MARK: - 3D Card Style
+// MARK: - Card Style
 
 struct CardStyle: ViewModifier {
-    var isPressed: Bool = false
-    
     func body(content: Content) -> some View {
         content
-            .background(
+            .background {
                 RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
                     .fill(.white)
-                    .shadow(color: .black.opacity(0.06), radius: 12, x: 0, y: 6)
-                    .shadow(color: .black.opacity(0.03), radius: 4, x: 0, y: 2)
-            )
+                    .overlay {
+                        RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous)
+                            .stroke(Color.border, lineWidth: 0.5)
+                    }
+            }
     }
 }
 
 extension View {
     func cardStyle() -> some View {
         modifier(CardStyle())
+    }
+}
+
+// MARK: - Grain Texture
+
+struct GrainTexture: View {
+    var body: some View {
+        GeometryReader { geo in
+            Canvas { context, size in
+                for _ in 0..<Int(size.width * size.height / 100) {
+                    let x = CGFloat.random(in: 0...size.width)
+                    let y = CGFloat.random(in: 0...size.height)
+                    context.fill(
+                        Path(ellipseIn: CGRect(x: x, y: y, width: 1, height: 1)),
+                        with: .color(.black.opacity(Double.random(in: 0.008...0.02)))
+                    )
+                }
+            }
+        }
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
+    }
+}
+
+// MARK: - Divider
+
+struct ThinDivider: View {
+    var body: some View {
+        Rectangle()
+            .fill(Color.border)
+            .frame(height: 0.5)
     }
 }

@@ -2,36 +2,15 @@
 //  GlassContainer.swift
 //  MealPlanner
 //
-//  Created by Zayne Verlyn on 24/10/25.
-//
-
 
 import SwiftUI
 
 struct GlassContainer: ViewModifier {
     func body(content: Content) -> some View {
         ZStack {
-            // Subtle pastel gradient background
-            LinearGradient(
-                colors: [
-                    Color(.systemTeal).opacity(0.10),
-                    Color(.systemPink).opacity(0.10),
-                    Color(.systemIndigo).opacity(0.10)
-                ],
-                startPoint: .topLeading, endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
-
+            Color.surfaceBase.ignoresSafeArea()
+            GrainTexture()
             content
-                .background(
-                    // Frosted glass layer
-                    RoundedRectangle(cornerRadius: 24)
-                        .fill(.ultraThinMaterial)
-                        .shadow(color: .black.opacity(0.08), radius: 16, x: 0, y: 8)
-                        .padding(.horizontal)
-                        .padding(.top, 8)
-                        .opacity(0) // invisible container so scrolling content isn't clipped
-                )
         }
     }
 }
@@ -42,24 +21,52 @@ extension View {
 
 struct BannerView: View {
     var banner: Banner
+    
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-            Text(banner.text).font(.callout).bold()
+        HStack(spacing: Spacing.md) {
+            Circle()
+                .fill(iconColor.opacity(0.15))
+                .frame(width: 32, height: 32)
+                .overlay {
+                    Image(systemName: icon)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(iconColor)
+                }
+            
+            Text(banner.text)
+                .font(AppFont.body(15, weight: .medium))
+                .foregroundStyle(.textPrimary)
+            
             Spacer()
         }
-        .padding(.vertical, 10)
-        .padding(.horizontal, 14)
-        .background(.ultraThinMaterial, in: Capsule())
-        .padding(.top, 12)
-        .padding(.horizontal)
+        .padding(.horizontal, Spacing.md)
+        .padding(.vertical, Spacing.md)
+        .background {
+            RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous)
+                .fill(.white)
+                .overlay {
+                    RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous)
+                        .stroke(Color.border, lineWidth: 0.5)
+                }
+                .shadow(color: .black.opacity(0.06), radius: 12, x: 0, y: 4)
+        }
+        .padding(.horizontal, Spacing.lg)
+        .padding(.top, Spacing.sm)
     }
 
     private var icon: String {
         switch banner.kind {
-        case .success: return "checkmark.seal.fill"
-        case .info:    return "info.circle.fill"
-        case .error:   return "exclamationmark.triangle.fill"
+        case .success: return "checkmark"
+        case .info:    return "info"
+        case .error:   return "exclamationmark"
+        }
+    }
+    
+    private var iconColor: Color {
+        switch banner.kind {
+        case .success: return .brandAccent
+        case .info:    return .brandPrimary
+        case .error:   return .brandSecondary
         }
     }
 }

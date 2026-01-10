@@ -2,8 +2,6 @@
 //  RootView.swift
 //  MealPlanner
 //
-//  Created by Zayne Verlyn on 24/10/25.
-//
 
 import SwiftUI
 
@@ -13,154 +11,122 @@ struct RootView: View {
     
     var body: some View {
         ZStack {
-            // Hero gradient background
-            Color.heroGradient
-                .ignoresSafeArea()
-            
-            // Grain texture overlay
+            Color.surfaceBase.ignoresSafeArea()
             GrainTexture()
             
-            // Main content
             TabView(selection: $selectedTab) {
-                MealsView()
-                    .tag(0)
-                
-                PlanView()
-                    .tag(1)
-                
-                ProfileView()
-                    .tag(2)
+                MealsView().tag(0)
+                PlanView().tag(1)
+                ProfileView().tag(2)
             }
-            .tint(.brandPrimary)
+            .tabViewStyle(.page(indexDisplayMode: .never))
             
-            // Custom tab bar
             VStack {
                 Spacer()
-                CustomTabBar(selectedTab: $selectedTab)
-                    .padding(.horizontal, Spacing.lg)
-                    .padding(.bottom, Spacing.md)
+                FloatingNavBar(selectedTab: $selectedTab)
             }
         }
         .overlay(alignment: .top) {
             if let banner = store.banner {
-                ModernBannerView(banner: banner)
+                BannerView(banner: banner)
                     .transition(.move(edge: .top).combined(with: .opacity))
                     .zIndex(1)
             }
         }
-        .task {
-            await store.loadAll()
-        }
+        .task { await store.loadAll() }
     }
 }
 
-// MARK: - Custom Tab Bar
-struct CustomTabBar: View {
+// MARK: - Floating Nav Bar
+
+struct FloatingNavBar: View {
     @Binding var selectedTab: Int
+    @Namespace private var animation
     
     var body: some View {
-        HStack(spacing: 0) {
-            TabButton(icon: "fork.knife", title: "Meals", isSelected: selectedTab == 0) {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+        HStack(spacing: Spacing.xs) {
+            NavBarItem(
+                icon: "fork.knife",
+                label: "Meals",
+                isSelected: selectedTab == 0,
+                namespace: animation
+            ) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                     selectedTab = 0
                 }
             }
             
-            TabButton(icon: "calendar", title: "Plan", isSelected: selectedTab == 1) {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+            NavBarItem(
+                icon: "calendar",
+                label: "Plan",
+                isSelected: selectedTab == 1,
+                namespace: animation
+            ) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                     selectedTab = 1
                 }
             }
             
-            TabButton(icon: "person.circle", title: "Profile", isSelected: selectedTab == 2) {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+            NavBarItem(
+                icon: "person",
+                label: "Profile",
+                isSelected: selectedTab == 2,
+                namespace: animation
+            ) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                     selectedTab = 2
                 }
             }
         }
-        .padding(.vertical, Spacing.sm)
-        .padding(.horizontal, Spacing.xs)
+        .padding(Spacing.xs)
         .background {
-            RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous)
-                .fill(.ultraThinMaterial)
-                .shadow(color: .black.opacity(0.1), radius: 20, x: 0, y: 10)
+            Capsule()
+                .fill(.white)
+                .overlay { Capsule().stroke(Color.border, lineWidth: 0.5) }
+                .shadow(color: .black.opacity(0.08), radius: 24, x: 0, y: 10)
         }
+        .padding(.horizontal, Spacing.xl)
+        .padding(.bottom, Spacing.md)
     }
 }
 
-struct TabButton: View {
+struct NavBarItem: View {
     let icon: String
-    let title: String
+    let label: String
     let isSelected: Bool
+    var namespace: Namespace.ID
     let action: () -> Void
     
     var body: some View {
         Button(action: action) {
-            VStack(spacing: Spacing.xs) {
+            HStack(spacing: Spacing.sm) {
                 Image(systemName: icon)
-                    .font(.system(size: 20, weight: isSelected ? .semibold : .regular))
-                    .symbolRenderingMode(.hierarchical)
+                    .font(.system(size: 18, weight: isSelected ? .semibold : .regular))
                 
-                Text(title)
-                    .font(AppFont.caption(10, weight: isSelected ? .semibold : .medium))
+                if isSelected {
+                    Text(label)
+                        .font(AppFont.body(15, weight: .semibold))
+                        .transition(.scale(scale: 0.8).combined(with: .opacity))
+                }
             }
-            .foregroundStyle(isSelected ? Color.brandPrimary : Color.textSecondary)
-            .frame(maxWidth: .infinity)
+            .foregroundStyle(isSelected ? .white : .textSecondary)
+            .padding(.horizontal, isSelected ? Spacing.lg : Spacing.md)
             .padding(.vertical, Spacing.sm)
             .background {
                 if isSelected {
-                    RoundedRectangle(cornerRadius: CornerRadius.sm, style: .continuous)
-                        .fill(Color.brandPrimary.opacity(0.12))
-                        .matchedGeometryEffect(id: "tab", in: namespace)
+                    Capsule()
+                        .fill(Color.brandPrimary)
+                        .matchedGeometryEffect(id: "navBg", in: namespace)
                 }
             }
         }
         .buttonStyle(BouncyButtonStyle())
     }
-    
-    @Namespace private var namespace
 }
 
-// MARK: - Modern Banner
+// MARK: - Banner
+
 struct ModernBannerView: View {
     var banner: Banner
-    
-    var body: some View {
-        HStack(spacing: Spacing.md) {
-            Image(systemName: icon)
-                .font(.system(size: 20, weight: .semibold))
-                .foregroundStyle(iconColor)
-            
-            Text(banner.text)
-                .font(AppFont.body(15, weight: .semibold))
-                .foregroundStyle(.textPrimary)
-            
-            Spacer()
-        }
-        .padding(.vertical, Spacing.md)
-        .padding(.horizontal, Spacing.lg)
-        .background {
-            RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous)
-                .fill(.ultraThinMaterial)
-                .shadow(color: .black.opacity(0.1), radius: 16, x: 0, y: 8)
-        }
-        .padding(.horizontal, Spacing.lg)
-        .padding(.top, Spacing.md)
-    }
-    
-    private var icon: String {
-        switch banner.kind {
-        case .success: return "checkmark.circle.fill"
-        case .info: return "info.circle.fill"
-        case .error: return "exclamationmark.triangle.fill"
-        }
-    }
-    
-    private var iconColor: Color {
-        switch banner.kind {
-        case .success: return .green
-        case .info: return .brandSecondary
-        case .error: return .brandPrimary
-        }
-    }
+    var body: some View { BannerView(banner: banner) }
 }

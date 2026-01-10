@@ -16,10 +16,10 @@ enum MealCourse: String, Codable, CaseIterable, Identifiable {
 
     var accentColor: Color {
         switch self {
-        case .breakfast: return Color(red: 1.0, green: 0.75, blue: 0.3)    // Warm orange
-        case .lunch:     return Color(red: 0.4, green: 0.78, blue: 0.45)   // Fresh green
-        case .dinner:    return Color(red: 0.75, green: 0.4, blue: 0.95)   // Deep purple
-        case .snack:     return Color(red: 0.2, green: 0.7, blue: 0.9)     // Sky blue
+        case .breakfast: return Color(red: 0.9, green: 0.55, blue: 0.25)   // Warm amber
+        case .lunch:     return Color(red: 0.25, green: 0.6, blue: 0.45)   // Sage green
+        case .dinner:    return Color(red: 0.45, green: 0.35, blue: 0.65)  // Muted purple
+        case .snack:     return Color(red: 0.35, green: 0.55, blue: 0.7)   // Slate blue
         }
     }
 
